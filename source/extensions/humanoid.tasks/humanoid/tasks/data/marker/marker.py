@@ -1,7 +1,7 @@
 import os
-from omni.isaac.lab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
-from omni.isaac.lab.markers.visualization_markers import VisualizationMarkersCfg
-import omni.isaac.lab.sim as sim_utils
+from isaaclab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
+from isaaclab.markers.visualization_markers import VisualizationMarkersCfg
+import isaaclab.sim as sim_utils
 
 current_file_path = os.path.abspath(__file__)
 parent_dir_path = os.path.dirname(current_file_path)

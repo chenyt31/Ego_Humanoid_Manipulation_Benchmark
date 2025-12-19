@@ -6,12 +6,12 @@ from humanoid.tasks.data.drawer.drawer import DRAWER_CFG, DRAWER_JOINT_CFG
 from humanoid.tasks.data.can import CAN_FANTA_CFG
 from humanoid.tasks.data.h1.h1_inspire import H1_INSPIRE_CFG
 from humanoid.tasks.data.plate import PLATE_CFG
-from omni.isaac.lab.assets.articulation.articulation import Articulation
-from omni.isaac.lab.assets.articulation.articulation_cfg import ArticulationCfg
-from omni.isaac.lab.assets.rigid_object.rigid_object import RigidObject
-from omni.isaac.lab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
-from omni.isaac.lab.sim.simulation_cfg import SimulationCfg
-from omni.isaac.lab.utils import configclass
+from isaaclab.assets.articulation.articulation import Articulation
+from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg
+from isaaclab.assets.rigid_object.rigid_object import RigidObject
+from isaaclab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
+from isaaclab.sim.simulation_cfg import SimulationCfg
+from isaaclab.utils import configclass
 
 import torch
 

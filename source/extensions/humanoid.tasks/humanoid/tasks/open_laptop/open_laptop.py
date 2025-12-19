@@ -3,13 +3,13 @@ from collections.abc import Sequence
 
 from humanoid.tasks.base_env.base_env import BaseEnv, BaseEnvCfg
 from humanoid.tasks.data.laptop import LAPTOP_CFG
-from omni.isaac.lab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg, RigidObject
-from omni.isaac.lab.assets.articulation.articulation_cfg import ArticulationCfg, Articulation
-from omni.isaac.lab.sim import SimulationCfg, PhysxCfg
-from omni.isaac.lab.utils import configclass
+from isaaclab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg, RigidObject
+from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg, Articulation
+from isaaclab.sim import SimulationCfg, PhysxCfg
+from isaaclab.utils import configclass
 
-import omni.isaac.lab.utils.math as math_util 
-import omni.isaac.lab.sim as sim_utils
+import isaaclab.utils.math as math_util 
+import isaaclab.sim as sim_utils
 import torch
 
 @configclass

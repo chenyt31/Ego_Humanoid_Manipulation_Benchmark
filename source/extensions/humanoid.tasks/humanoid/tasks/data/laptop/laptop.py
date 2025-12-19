@@ -1,9 +1,9 @@
 import os
 import random
-from omni.isaac.lab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
-from omni.isaac.lab.assets.articulation.articulation_cfg import ArticulationCfg
-import omni.isaac.lab.sim as sim_utils
-from omni.isaac.lab.actuators import ImplicitActuatorCfg
+from isaaclab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
+from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg
+import isaaclab.sim as sim_utils
+from isaaclab.actuators import ImplicitActuatorCfg
 
 current_file_path = os.path.abspath(__file__)
 parent_dir_path = os.path.dirname(current_file_path)

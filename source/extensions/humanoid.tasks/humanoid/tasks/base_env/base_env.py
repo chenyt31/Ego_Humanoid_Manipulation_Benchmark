@@ -7,23 +7,23 @@ from humanoid.tasks.data.h1 import (H1_INSPIRE_CFG, H1_INSPIRE_LEFT_ARM_CFG, H1_
                                     H1_INSPIRE_RIGHT_ARM_CFG, H1_INSPIRE_RIGHT_HAND_CFG)
 from humanoid.tasks.data.scene import ROOM_CFG
 from humanoid.tasks.data.table import TABLE_CFG
-from omni.isaac.lab.sensors.contact_sensor.contact_sensor import ContactSensor
-from omni.isaac.lab.sensors.contact_sensor.contact_sensor_cfg import ContactSensorCfg
-from omni.isaac.lab.assets.articulation.articulation import Articulation
-from omni.isaac.lab.assets.articulation.articulation_cfg import ArticulationCfg
-from omni.isaac.lab.assets.asset_base_cfg import AssetBaseCfg
-from omni.isaac.lab.envs import DirectRLEnvCfg
-from omni.isaac.lab.envs.direct_rl_env import DirectRLEnv
-from omni.isaac.lab.scene import InteractiveSceneCfg
-from omni.isaac.lab.sensors.camera.camera import Camera
-from omni.isaac.lab.sensors.camera.camera_cfg import CameraCfg
-from omni.isaac.lab.sim import SimulationCfg
-from omni.isaac.lab.sim.spawners.from_files.from_files import spawn_ground_plane
-from omni.isaac.lab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg
-from omni.isaac.lab.terrains import TerrainImporterCfg
-from omni.isaac.lab.utils import configclass
-import omni.isaac.lab.sim as sim_utils
-import omni.isaac.lab.utils.math as math_util
+from isaaclab.sensors.contact_sensor.contact_sensor import ContactSensor
+from isaaclab.sensors.contact_sensor.contact_sensor_cfg import ContactSensorCfg
+from isaaclab.assets.articulation.articulation import Articulation
+from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg
+from isaaclab.assets.asset_base_cfg import AssetBaseCfg
+from isaaclab.envs import DirectRLEnvCfg
+from isaaclab.envs.direct_rl_env import DirectRLEnv
+from isaaclab.scene import InteractiveSceneCfg
+from isaaclab.sensors.camera.camera import Camera
+from isaaclab.sensors.camera.camera_cfg import CameraCfg
+from isaaclab.sim import SimulationCfg
+from isaaclab.sim.spawners.from_files.from_files import spawn_ground_plane
+from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg
+from isaaclab.terrains import TerrainImporterCfg
+from isaaclab.utils import configclass
+import isaaclab.sim as sim_utils
+import isaaclab.utils.math as math_util
 
 @configclass
 class BaseEnvCfg(DirectRLEnvCfg):
@@ -59,55 +59,104 @@ class BaseEnvCfg(DirectRLEnvCfg):
     # background
     room = ROOM_CFG.replace(prim_path="/World/envs/env_.*/Room")  # type: ignore
     # camera
+    # 左眼相机
     left_eye_camera = CameraCfg(
         prim_path="/World/envs/env_.*/Robot/torso_link/left_eye_camera",
         height=360,
         width=640,
         data_types=["rgb", "distance_to_image_plane"],
-        spawn=sim_utils.FisheyeCameraCfg(
-            focal_length=8.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 1.0e5)
+        spawn=sim_utils.PinholeCameraCfg(
+            projection_type="pinhole",
+            focal_length=8,                     # 更接近人眼视角（约60-70° FOV）
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 1.0e5),
         ),
-        offset=CameraCfg.OffsetCfg(pos=(0.09, 0.033, 0.65), rot=(0.66446, 0.24184, -0.24184, -0.664464), convention="opengl"),
+        offset=CameraCfg.OffsetCfg(
+            pos=(0.09, 0.033, 0.65),
+            rot=(0.66446, 0.24184, -0.24184, -0.664464),
+            convention="opengl",
+        ),
     )
+
+    # 右眼相机
     right_eye_camera = CameraCfg(
         prim_path="/World/envs/env_.*/Robot/torso_link/right_eye_camera",
         height=360,
         width=640,
         data_types=["rgb", "distance_to_image_plane"],
-        spawn=sim_utils.FisheyeCameraCfg(
-            focal_length=8.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 1.0e5)
+        spawn=sim_utils.PinholeCameraCfg(
+            projection_type="pinhole",
+            focal_length=8,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 1.0e5),
         ),
-        offset=CameraCfg.OffsetCfg(pos=(0.09, -0.033, 0.65), rot=(0.66446, 0.24184, -0.24184, -0.664464), convention="opengl"),
+        offset=CameraCfg.OffsetCfg(
+            pos=(0.09, -0.033, 0.65),
+            rot=(0.66446, 0.24184, -0.24184, -0.664464),
+            convention="opengl",
+        ),
     )
+
+    # 主相机
     main_camera = CameraCfg(
         prim_path="/World/envs/env_.*/main_camera",
         height=720,
         width=1280,
         data_types=["rgb", "distance_to_image_plane"],
-        spawn=sim_utils.FisheyeCameraCfg(
-            focal_length=8.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 1.0e5)
+        spawn=sim_utils.PinholeCameraCfg(
+            projection_type="pinhole",
+            focal_length=8,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 1.0e5),
         ),
-        offset=CameraCfg.OffsetCfg(pos=(0.09, 0.0, 1.7), rot=(0.66446, 0.24184, -0.24184, -0.664464), convention="opengl"),
+        offset=CameraCfg.OffsetCfg(
+            pos=(0.09, 0.0, 1.7),
+            rot=(0.66446, 0.24184, -0.24184, -0.664464),
+            convention="opengl",
+        ),
     )
+
+    # 左手相机
     left_hand_camera = CameraCfg(
         prim_path="/World/envs/env_.*/Robot/L_hand_base_link/left_hand_camera",
         height=720,
         width=1280,
         data_types=["rgb", "distance_to_image_plane"],
-        spawn=sim_utils.FisheyeCameraCfg(
-            focal_length=8.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 1.0e5)
+        spawn=sim_utils.PinholeCameraCfg(
+            projection_type="pinhole",
+            focal_length=8,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 1.0e5),
         ),
-        offset=CameraCfg.OffsetCfg(pos=(-0.1, 0.04, 0.0), rot=(-0.17705, -0.17705, 0.68458, 0.68458), convention="opengl"),
+        offset=CameraCfg.OffsetCfg(
+            pos=(-0.1, 0.04, 0.0),
+            rot=(-0.17705, -0.17705, 0.68458, 0.68458),
+            convention="opengl",
+        ),
     )
+
+    # 右手相机
     right_hand_camera = CameraCfg(
         prim_path="/World/envs/env_.*/Robot/R_hand_base_link/right_hand_camera",
         height=720,
         width=1280,
         data_types=["rgb", "distance_to_image_plane"],
-        spawn=sim_utils.FisheyeCameraCfg(
-            focal_length=8.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 1.0e5)
+        spawn=sim_utils.PinholeCameraCfg(
+            projection_type="pinhole",
+            focal_length=8,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 1.0e5),
         ),
-        offset=CameraCfg.OffsetCfg(pos=(-0.1, 0.04, 0.0), rot=(0.68458, -0.68458, -0.17705, 0.17705), convention="opengl"),
+        offset=CameraCfg.OffsetCfg(
+            pos=(-0.1, 0.04, 0.0),
+            rot=(0.68458, -0.68458, -0.17705, 0.17705),
+            convention="opengl",
+        ),
     )
     # contact sensors
     left_hand_contact_sensor = ContactSensorCfg(prim_path="/World/envs/env_.*/Robot/L_index_intermediate")

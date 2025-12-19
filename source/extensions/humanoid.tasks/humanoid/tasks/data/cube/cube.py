@@ -1,7 +1,7 @@
 import os
 import random
-from omni.isaac.lab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
-import omni.isaac.lab.sim as sim_utils
+from isaaclab.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
+import isaaclab.sim as sim_utils
 
 current_file_path = os.path.abspath(__file__)
 parent_dir_path = os.path.dirname(current_file_path)

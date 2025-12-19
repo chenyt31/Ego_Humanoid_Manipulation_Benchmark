@@ -1,8 +1,8 @@
 import os
-from omni.isaac.lab.managers.scene_entity_cfg import SceneEntityCfg
-import omni.isaac.lab.sim as sim_utils
-from omni.isaac.lab.assets.articulation.articulation_cfg import ArticulationCfg
-from omni.isaac.lab.actuators import ImplicitActuatorCfg
+from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
+import isaaclab.sim as sim_utils
+from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg
+from isaaclab.actuators import ImplicitActuatorCfg
 
 current_file_path = os.path.abspath(__file__)
 parent_dir_path = os.path.dirname(current_file_path)
