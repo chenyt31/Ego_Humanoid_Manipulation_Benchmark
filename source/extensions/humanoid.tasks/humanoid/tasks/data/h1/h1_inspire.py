@@ -4,123 +4,138 @@ import isaaclab.sim as sim_utils
 from isaaclab.assets.articulation.articulation_cfg import ArticulationCfg
 from isaaclab.actuators import ImplicitActuatorCfg
 
+# ------------------------------------------------------------
+# Paths
+# ------------------------------------------------------------
 current_file_path = os.path.abspath(__file__)
 parent_dir_path = os.path.dirname(current_file_path)
 
-stiffness = 2000
-damping = 75
+# ------------------------------------------------------------
+# Tuned control parameters (PhysX-stable)
+# ------------------------------------------------------------
+# Shoulder / elbow
+SHOULDER_KP = 1500
+SHOULDER_KD = 60
+ELBOW_KP = 1200
+ELBOW_KD = 50
 
+# Wrist (critical)
+WRIST_KP = 300
+WRIST_KD = 12
+
+# Hand (very soft)
+HAND_KP = 80
+HAND_KD = 5
+
+# Effort limits
+ARM_EFFORT_LIMIT = 500
+HAND_EFFORT_LIMIT = 5
+
+# ------------------------------------------------------------
+# Articulation configuration
+# ------------------------------------------------------------
 H1_INSPIRE_CFG = ArticulationCfg(
     prim_path="{ENV_REGEX_NS}/Robot",
     spawn=sim_utils.UsdFileCfg(
         usd_path=f"{parent_dir_path}/h1_inspire_convex_decomp.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
-            max_depenetration_velocity=100.0,
-            solver_position_iteration_count=64,
-            solver_velocity_iteration_count=4,
-            max_contact_impulse=10,
+            max_depenetration_velocity=10.0,
+            solver_position_iteration_count=32,
+            solver_velocity_iteration_count=2,
+            max_contact_impulse=5.0,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=False, solver_position_iteration_count=32, solver_velocity_iteration_count=4
+            enabled_self_collisions=False,
+            solver_position_iteration_count=16,
+            solver_velocity_iteration_count=2,
         ),
-        semantic_tags=[('focus', 'true'), ('category', 'robot')],
+        semantic_tags=[("focus", "true"), ("category", "robot")],
     ),
+
+    # --------------------------------------------------------
+    # Initial state
+    # --------------------------------------------------------
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 1.05),
         joint_pos={
-            ".*_hip_yaw_joint": 0.0,
-            ".*_hip_roll_joint": 0.0,
-            ".*_hip_pitch_joint": -0.0,
+            ".*_hip_.*_joint": 0.0,
             ".*_knee_joint": 0.0,
-            ".*_ankle_pitch_joint": 0.0,
-            ".*_ankle_roll_joint": 0.0,
-            # "torso_joint": 0.0,
+            ".*_ankle_.*_joint": 0.0,
             ".*_shoulder_pitch_joint": 0.5,
             ".*_shoulder_roll_joint": 0.0,
             ".*_shoulder_yaw_joint": 0.0,
-            ".*_elbow_pitch_joint": -1,
+            ".*_elbow_pitch_joint": -1.0,
             ".*_elbow_roll_joint": 0.0,
             ".*_wrist_pitch_joint": 0.0,
             ".*_wrist_yaw_joint": 0.0,
-            ".*_index_proximal_joint": 0.0,
-            ".*_ring_proximal_joint": 0.0,
-            ".*_index_intermediate_joint": 0.0,
-            ".*_middle_intermediate_joint": 0.0,
-            ".*_pinky_intermediate_joint": 0.0,
-            ".*_ring_intermediate_joint": 0.0,
-            ".*_thumb_intermediate_joint": 0.0,
-            ".*_thumb_proximal_yaw_joint": 0.0,
-            ".*_thumb_proximal_pitch_joint": 0.0,
-            ".*_thumb_distal_joint": 0.0,
+            ".*_index_.*_joint": 0.0,
+            ".*_middle_.*_joint": 0.0,
+            ".*_ring_.*_joint": 0.0,
+            ".*_pinky_.*_joint": 0.0,
+            ".*_thumb_.*_joint": 0.0,
         },
         joint_vel={".*": 0.0},
     ),
+
     soft_joint_pos_limit_factor=1.0,
+
+    # --------------------------------------------------------
+    # Actuators
+    # --------------------------------------------------------
     actuators={
         "arms": ImplicitActuatorCfg(
-            joint_names_expr=[".*_shoulder_pitch_joint", ".*_shoulder_roll_joint", ".*_shoulder_yaw_joint", ".*_elbow_pitch_joint", ".*_elbow_roll_joint", ".*_wrist_pitch_joint", ".*_wrist_yaw_joint"],
-            effort_limit=100,
-            velocity_limit=1.0,
+            joint_names_expr=[
+                ".*_shoulder_pitch_joint",
+                ".*_shoulder_roll_joint",
+                ".*_shoulder_yaw_joint",
+                ".*_elbow_pitch_joint",
+                ".*_elbow_roll_joint",
+                ".*_wrist_pitch_joint",
+                ".*_wrist_yaw_joint",
+            ],
+            velocity_limit=4.0,
+            effort_limit=ARM_EFFORT_LIMIT,
             stiffness={
-                ".*_shoulder_pitch_joint": stiffness,
-                ".*_shoulder_roll_joint": stiffness,
-                ".*_shoulder_yaw_joint": stiffness,
-                ".*_elbow_pitch_joint": stiffness,
-                ".*_elbow_roll_joint": stiffness,
-                ".*_wrist_pitch_joint": stiffness,
-                ".*_wrist_yaw_joint": stiffness,
+                ".*_shoulder_pitch_joint": SHOULDER_KP,
+                ".*_shoulder_roll_joint": SHOULDER_KP,
+                ".*_shoulder_yaw_joint": SHOULDER_KP,
+                ".*_elbow_pitch_joint": ELBOW_KP,
+                ".*_elbow_roll_joint": ELBOW_KP,
+                ".*_wrist_pitch_joint": WRIST_KP,
+                ".*_wrist_yaw_joint": WRIST_KP,
             },
             damping={
-                ".*_shoulder_pitch_joint": damping,
-                ".*_shoulder_roll_joint": damping,
-                ".*_shoulder_yaw_joint": damping,
-                ".*_elbow_pitch_joint": damping,
-                ".*_elbow_roll_joint": damping,
-                ".*_wrist_pitch_joint": damping,
-                ".*_wrist_yaw_joint": damping,
+                ".*_shoulder_pitch_joint": SHOULDER_KD,
+                ".*_shoulder_roll_joint": SHOULDER_KD,
+                ".*_shoulder_yaw_joint": SHOULDER_KD,
+                ".*_elbow_pitch_joint": ELBOW_KD,
+                ".*_elbow_roll_joint": ELBOW_KD,
+                ".*_wrist_pitch_joint": WRIST_KD,
+                ".*_wrist_yaw_joint": WRIST_KD,
             },
         ),
+
         "hands": ImplicitActuatorCfg(
-            joint_names_expr=[".*_index_proximal_joint", ".*_middle_proximal_joint", ".*_pinky_proximal_joint",
-                              ".*_ring_proximal_joint", ".*_index_intermediate_joint", ".*_middle_intermediate_joint",
-                              ".*_pinky_intermediate_joint", ".*_ring_intermediate_joint", ".*_thumb_intermediate_joint",
-                              ".*_thumb_proximal_yaw_joint", ".*_thumb_proximal_pitch_joint"  , ".*_thumb_distal_joint"],
-            effort_limit=10,
-            velocity_limit=1.0,
-            stiffness={
-                ".*_index_proximal_joint": stiffness,
-                ".*_middle_proximal_joint": stiffness,
-                ".*_pinky_proximal_joint": stiffness,
-                ".*_ring_proximal_joint": stiffness,
-                ".*_index_intermediate_joint": stiffness,
-                ".*_middle_intermediate_joint": stiffness,
-                ".*_pinky_intermediate_joint": stiffness,
-                ".*_ring_intermediate_joint": stiffness,
-                ".*_thumb_intermediate_joint": stiffness,
-                ".*_thumb_proximal_yaw_joint": stiffness,
-                ".*_thumb_proximal_pitch_joint": stiffness,
-                ".*_thumb_distal_joint": stiffness,
-            },
-            damping={
-                ".*_index_proximal_joint": damping,
-                ".*_middle_proximal_joint": damping,
-                ".*_pinky_proximal_joint": damping,
-                ".*_ring_proximal_joint": damping,
-                ".*_index_intermediate_joint": damping,
-                ".*_middle_intermediate_joint": damping,
-                ".*_pinky_intermediate_joint": damping,
-                ".*_ring_intermediate_joint": damping,
-                ".*_thumb_intermediate_joint": damping,
-                ".*_thumb_proximal_yaw_joint": damping,
-                ".*_thumb_proximal_pitch_joint": damping,
-                ".*_thumb_distal_joint": damping,
-            }
+            joint_names_expr=[
+                ".*_index_.*_joint",
+                ".*_middle_.*_joint",
+                ".*_ring_.*_joint",
+                ".*_pinky_.*_joint",
+                ".*_thumb_.*_joint",
+            ],
+            velocity_limit=2.0,
+            effort_limit=HAND_EFFORT_LIMIT,
+            stiffness={".*": HAND_KP},
+            damping={".*": HAND_KD},
         ),
-    }
+    },
 )
 
-H1_INSPIRE_LEFT_ARM_CFG: SceneEntityCfg = SceneEntityCfg(
+# ------------------------------------------------------------
+# Scene entity configs (for controllers / observations)
+# ------------------------------------------------------------
+H1_INSPIRE_LEFT_ARM_CFG = SceneEntityCfg(
     "robot",
     joint_names=[
         "left_shoulder_pitch_joint",
@@ -132,10 +147,10 @@ H1_INSPIRE_LEFT_ARM_CFG: SceneEntityCfg = SceneEntityCfg(
         "left_wrist_yaw_joint",
     ],
     body_names=["L_hand_base_link"],
-    preserve_order=True
+    preserve_order=True,
 )
-    
-H1_INSPIRE_RIGHT_ARM_CFG: SceneEntityCfg = SceneEntityCfg(
+
+H1_INSPIRE_RIGHT_ARM_CFG = SceneEntityCfg(
     "robot",
     joint_names=[
         "right_shoulder_pitch_joint",
@@ -147,7 +162,7 @@ H1_INSPIRE_RIGHT_ARM_CFG: SceneEntityCfg = SceneEntityCfg(
         "right_wrist_yaw_joint",
     ],
     body_names=["R_hand_base_link"],
-    preserve_order=True
+    preserve_order=True,
 )
 
 H1_INSPIRE_LEFT_HAND_CFG = SceneEntityCfg(
@@ -164,7 +179,7 @@ H1_INSPIRE_LEFT_HAND_CFG = SceneEntityCfg(
         "L_thumb_proximal_yaw_joint",
         "L_thumb_proximal_pitch_joint",
         "L_thumb_intermediate_joint",
-        "L_thumb_distal_joint"
+        "L_thumb_distal_joint",
     ],
     body_names=[
         "L_thumb_tip",
@@ -190,7 +205,7 @@ H1_INSPIRE_RIGHT_HAND_CFG = SceneEntityCfg(
         "R_thumb_proximal_yaw_joint",
         "R_thumb_proximal_pitch_joint",
         "R_thumb_intermediate_joint",
-        "R_thumb_distal_joint"
+        "R_thumb_distal_joint",
     ],
     body_names=[
         "R_thumb_tip",
@@ -201,4 +216,10 @@ H1_INSPIRE_RIGHT_HAND_CFG = SceneEntityCfg(
     ],
     preserve_order=True,
 )
-"""Configuration for the Unitree H1 Inspire Humanoid robot with hand."""
+
+"""
+Stable Isaac Lab configuration for Unitree H1 + Inspire Hands.
+- Wrist large-angle rotation stable
+- Hand manipulation without solver lock-up
+- No USD modification required
+"""

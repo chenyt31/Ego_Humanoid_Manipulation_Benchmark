@@ -259,8 +259,8 @@ class BaseEnv(DirectRLEnv):
     def _apply_action(self) -> None:
         self.actions *= self.cfg.action_scale
         self.actions[:] = torch.clamp(self.actions, self.robot_dof_lower_limits, self.robot_dof_upper_limits)
-        # self.robot.set_joint_position_target(self.actions)
-        self.robot.write_joint_state_to_sim(self.actions, torch.zeros_like(self.actions))
+        self.robot.set_joint_position_target(self.actions)
+        # self.robot.write_joint_state_to_sim(self.actions, torch.zeros_like(self.actions))
 
     def _get_dones(self) -> tuple[torch.Tensor, torch.Tensor]:
         time_out = self.episode_length_buf >= self.max_episode_length
